@@ -1,9 +1,9 @@
-const express = require('express');
-const dotenv = require('dotenv');
-const connectDB = require('./config/db'); // Adjust path if needed
-const swaggerUi = require('swagger-ui-express');
-const swaggerJsdoc = require('swagger-jsdoc');
-const cors = require('cors'); // <--- IMPORT THE CORS PACKAGE
+const express = require("express");
+const dotenv = require("dotenv");
+const connectDB = require("./config/db"); // Adjust path if needed
+const swaggerUi = require("swagger-ui-express");
+const swaggerJsdoc = require("swagger-jsdoc");
+const cors = require("cors"); // <--- IMPORT THE CORS PACKAGE
 
 // Load env vars
 dotenv.config();
@@ -23,80 +23,89 @@ app.use(cors()); // <--- USE THE CORS MIDDLEWARE HERE
 app.use(express.json());
 
 // Define Routes (example)
-app.use('/api/auth', require('./routes/authRoutes')); // Authentication routes
+app.use("/api/auth", require("./routes/authRoutes")); // Authentication routes
 // app.use('/api/users', require('./routes/userRoutes')); // Other user-related routes
 
 // Swagger Options
 const swaggerOptions = {
-    swaggerDefinition: {
-        openapi: '3.0.0', // Or '2.0'
-        info: {
-            title: 'Sign Up/My API Documentation',
-            version: '1.0.0',
-            description: 'API for user registration and login, testable on Swagger itself.',
-            contact: {
-                name: 'Your Name',
-                email: 'your.email@example.com'
-            },
-        },
-        servers: [
-  {
-                // Updated for production deployment
-                url: process.env.NODE_ENV === 'production' 
-                    ? 'https://swagger-api-6yzx.onrender.com/api'  // Your Render URL
+  swaggerDefinition: {
+    openapi: "3.0.0", // Or '2.0'
+    info: {
+      title: "Sign Up/My API Documentation",
+      version: "1.0.0",
+      description:
+        "API for user registration and login, testable on Swagger itself.",
+      contact: {
+        name: "Your Name",
+        email: "your.email@example.com",
+      },
+    },
+servers: [
+          {
+                url: process.env.NODE_ENV === 'production'
+                    ? 'https://swagger-api-2wuq.onrender.com/api'  // <<<--- CORRECTED RENDER URL
                     : `http://localhost:${process.env.PORT || 5000}/api`,
-                description: process.env.NODE_ENV === 'production' ? 'Production server' : 'Development server'
+                description: process.env.NODE_ENV === 'production' ? 'Production Server (Render)' : 'Development server'
             }
         ],
-        components: { // Important for defining security schemes for JWT
-            securitySchemes: {
-                bearerAuth: {
-                    type: 'http',
-                    scheme: 'bearer',
-                    bearerFormat: 'JWT',
-                }
-            }
+    components: {
+      // Important for defining security schemes for JWT
+      securitySchemes: {
+        bearerAuth: {
+          type: "http",
+          scheme: "bearer",
+          bearerFormat: "JWT",
         },
-        security: [{ // Apply bearerAuth globally to all operations that don't override it
-            bearerAuth: []
-        }]
+      },
     },
-    // Path to the API docs (your route files with JSDoc comments)
-    apis: ['./routes/*.js'], // Adjust if your routes are elsewhere
+    security: [
+      {
+        // Apply bearerAuth globally to all operations that don't override it
+        bearerAuth: [],
+      },
+    ],
+  },
+  // Path to the API docs (your route files with JSDoc comments)
+  apis: ["./routes/*.js"], // Adjust if your routes are elsewhere
 };
 
 const swaggerDocs = swaggerJsdoc(swaggerOptions);
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
-
-app.get('/', (req, res) => {
-    res.json({
-        message: 'API is running successfully!',
-        documentation: '/api-docs',
-        endpoints: {
-            auth: '/api/auth',
-            swagger: '/api-docs'
-        },
-        status: 'Connected to MongoDB',
-        environment: process.env.NODE_ENV || 'development'
-    });
+app.get("/", (req, res) => {
+  res.json({
+    message: "API is running successfully!",
+    documentation: "/api-docs",
+    endpoints: {
+      auth: "/api/auth",
+      swagger: "/api-docs",
+    },
+    status: "Connected to MongoDB",
+    environment: process.env.NODE_ENV || "development",
+  });
 });
 
 const PORT = process.env.PORT || 5000;
 
-const server = app.listen(PORT, () => { // <--- Assign to 'server' for graceful shutdown
-    console.log(`Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
-    console.log(`MongoDB Connected...`); // Assuming connectDB() logs this or you move the log here
-    console.log(`Swagger UI available at http://localhost:${PORT}/api-docs`);
+const server = app.listen(PORT, () => {
+  // <--- Assign to 'server' for graceful shutdown
+  console.log(
+    `Server running in ${
+      process.env.NODE_ENV || "development"
+    } mode on port ${PORT}`
+  );
+  console.log(`MongoDB Connected...`); // Assuming connectDB() logs this or you move the log here
+  console.log(`Swagger UI available at http://localhost:${PORT}/api-docs`);
 });
 
 // Handle unhandled promise rejections
-process.on('unhandledRejection', (err, promise) => {
-    console.log(`Error: ${err.message}`);
-    // Close server & exit process
-    if (server) { // Check if server is defined before calling close
-        server.close(() => process.exit(1));
-    } else {
-        process.exit(1);
-    }
-})
+process.on("unhandledRejection", (err, promise) => {
+  console.log(`Error: ${err.message}`);
+  // Close server & exit process
+  if (server) {
+    // Check if server is defined before calling close
+    server.close(() => process.exit(1));
+  } else {
+    process.exit(1);
+  }
+});
