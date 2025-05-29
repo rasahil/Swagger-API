@@ -40,11 +40,12 @@ const swaggerOptions = {
             },
         },
         servers: [
-           {
-                // This URL tells Swagger UI WHERE to send the API requests.
-                // Make sure this matches the base URL of your API.
-                url: `http://localhost:${process.env.PORT || 5000}/api`,
-                description: 'Development server'
+  {
+                // Updated for production deployment
+                url: process.env.NODE_ENV === 'production' 
+                    ? 'https://swagger-api-6yzx.onrender.com/api'  // Your Render URL
+                    : `http://localhost:${process.env.PORT || 5000}/api`,
+                description: process.env.NODE_ENV === 'production' ? 'Production server' : 'Development server'
             }
         ],
         components: { // Important for defining security schemes for JWT
@@ -68,7 +69,18 @@ const swaggerDocs = swaggerJsdoc(swaggerOptions);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 
 
-app.get('/', (req, res) => res.send('API Running')); // Simple test route
+app.get('/', (req, res) => {
+    res.json({
+        message: 'API is running successfully!',
+        documentation: '/api-docs',
+        endpoints: {
+            auth: '/api/auth',
+            swagger: '/api-docs'
+        },
+        status: 'Connected to MongoDB',
+        environment: process.env.NODE_ENV || 'development'
+    });
+});
 
 const PORT = process.env.PORT || 5000;
 
