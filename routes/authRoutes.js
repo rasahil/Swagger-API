@@ -161,6 +161,6 @@ router.post('/login', loginUser);
  *       500:
  *         description: Server error
  */
-// router.get('/me', protect, getMe); // Uncomment if you have protect middleware and want to test it
+router.get('/me', protect, getMe); // Uncomment if you have protect middleware and want to test it
 
 module.exports = router;
